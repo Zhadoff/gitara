@@ -3,16 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Видео Трансляции</title>
+    <title>Спортивные Трансляции</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f4f4;
+            text-align: center;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h2 { color: #333; }
+        select, video {
+            width: 100%;
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+    </style>
 </head>
 <body>
-    <h2>Выберите поток:</h2>
-    <select id="streamSelect">
-        <option value="https://apollo.production-public.tubi.io/live/ac-nhl.m3u8">NHL</option>
-        <option value="http://your-server-ip/hls/movie2.m3u8">Фильм 2</option>
-    </select>
-
-    <video id="video" controls autoplay width="640" height="360"></video>
+    <div class="container">
+        <h2>Выберите трансляцию</h2>
+        <select id="streamSelect">
+            <optgroup label="Хоккей">
+                <option value="https://apollo.production-public.tubi.io/live/ac-nhl.m3u8">NHL</option>
+                <option value="http://your-server/hls/khl.m3u8">KHL</option>
+            </optgroup>
+            <optgroup label="Футбол (Топ-20 Стран)">
+                <option value="http://your-server/hls/epl.m3u8">Английская Премьер-Лига</option>
+                <option value="http://your-server/hls/laliga.m3u8">Ла Лига</option>
+                <option value="http://your-server/hls/seriea.m3u8">Серия A</option>
+                <option value="http://your-server/hls/bundesliga.m3u8">Бундеслига</option>
+                <option value="http://your-server/hls/ligue1.m3u8">Лига 1</option>
+            </optgroup>
+            <optgroup label="Кубки и Чемпионаты">
+                <option value="http://your-server/hls/ucl.m3u8">Лига Чемпионов</option>
+                <option value="http://your-server/hls/europa.m3u8">Лига Европы</option>
+                <option value="http://your-server/hls/worldcup.m3u8">ЧМ по Футболу</option>
+                <option value="http://your-server/hls/eurocup.m3u8">ЧЕ по Футболу</option>
+            </optgroup>
+        </select>
+        <video id="video" controls autoplay></video>
+    </div>
 
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <script>
@@ -33,7 +73,7 @@
             loadStream(select.value);
         });
 
-        loadStream(select.value); // Загружаем первый поток при загрузке страницы
+        loadStream(select.value); // Загружаем первый поток по умолчанию
     </script>
 </body>
 </html>
