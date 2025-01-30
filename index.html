@@ -1,106 +1,39 @@
 <!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>GuitarSim - Babylon.js</title>
-    <script src="https://cdn.babylonjs.com/babylon.js"></script>
-    <style>
-      body {
-        margin: 0;
-        overflow: hidden;
-      }
-      canvas {
-        width: 100%;
-        height: 100%;
-      }
-    </style>
-  </head>
-  <body>
-    <canvas id="renderCanvas"></canvas>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Видео Трансляции</title>
+</head>
+<body>
+    <h2>Выберите поток:</h2>
+    <select id="streamSelect">
+        <option value="https://apollo.production-public.tubi.io/live/ac-nhl.m3u8">NHL</option>
+        <option value="http://your-server-ip/hls/movie2.m3u8">Фильм 2</option>
+    </select>
+
+    <video id="video" controls autoplay width="640" height="360"></video>
+
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <script>
-      // 1. Получаем канвас и создаем движок
-      var canvas = document.getElementById("renderCanvas");
-      var engine = new BABYLON.Engine(canvas, true);
+        var video = document.getElementById('video');
+        var select = document.getElementById('streamSelect');
 
-      // 2. Создаем сцену
-      var scene = new BABYLON.Scene(engine);
-
-      // 3. Камера и свет
-      var camera = new BABYLON.ArcRotateCamera("camera1", Math.PI / 2, Math.PI / 2, 20, BABYLON.Vector3.Zero(), scene);
-      camera.attachControl(canvas, true);
-      var light = new BABYLON.HemisphericLight("light1", BABYLON.Vector3.Up(), scene);
-
-      // 4. Создаем гитару
-      var guitarBody = BABYLON.MeshBuilder.CreateBox("guitarBody", { height: 1, width: 8, depth: 2 }, scene);
-      guitarBody.position.y = 0.5;
-
-      // 5. Создаем струны
-      var strings = [];
-      var stringPositions = [
-        { y: 0.8, radius: 0.05 },
-        { y: 0.7, radius: 0.05 },
-        { y: 0.6, radius: 0.05 },
-        { y: 0.5, radius: 0.05 },
-        { y: 0.4, radius: 0.05 },
-        { y: 0.3, radius: 0.05 }
-      ];
-
-      for (var i = 0; i < 6; i++) {
-        var string = BABYLON.MeshBuilder.CreateCylinder("string" + i, { height: 8, diameter: stringPositions[i].radius }, scene);
-        string.rotation.z = Math.PI / 2; // Поворачиваем струну
-        string.position.y = stringPositions[i].y;
-        string.position.x = -3 + i; // Размещение струн вдоль оси X
-        string.position.z = 1;
-        strings.push(string);
-      }
-
-      // 6. Добавление эффекта вибрации при щелчке по струне
-      canvas.addEventListener("click", function (event) {
-        var pickResult = scene.pick(scene.pointerX, scene.pointerY);
-        if (pickResult.hit) {
-          // Проверяем, что была выбрана струна
-          for (var i = 0; i < strings.length; i++) {
-            if (pickResult.pickedMesh === strings[i]) {
-              vibrateString(strings[i]);
-              break;
+        function loadStream(url) {
+            if (Hls.isSupported()) {
+                var hls = new Hls();
+                hls.loadSource(url);
+                hls.attachMedia(video);
+            } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+                video.src = url;
             }
-          }
         }
-      });
 
-      // Функция для имитации вибрации струны
-      function vibrateString(string) {
-        var animation = new BABYLON.Animation(
-          "vibrateString",
-          "position.x",
-          30,
-          BABYLON.Animation.ANIMATIONTYPE_FLOAT,
-          BABYLON.Animation.ANIMATIONLOOPMODE_CYCLE
-        );
+        select.addEventListener('change', function() {
+            loadStream(select.value);
+        });
 
-        var keyFrames = [];
-        keyFrames.push({ frame: 0, value: string.position.x });
-        keyFrames.push({ frame: 10, value: string.position.x + 0.2 });
-        keyFrames.push({ frame: 20, value: string.position.x });
-        keyFrames.push({ frame: 30, value: string.position.x - 0.2 });
-        keyFrames.push({ frame: 40, value: string.position.x });
-
-        animation.setKeys(keyFrames);
-        string.animations = [];
-        string.animations.push(animation);
-        scene.beginAnimation(string, 0, 40, false);
-      }
-
-      // 7. Рендеринг
-      engine.runRenderLoop(function () {
-        scene.render();
-      });
-
-      // 8. Обработка изменения размера окна
-      window.addEventListener("resize", function () {
-        engine.resize();
-      });
+        loadStream(select.value); // Загружаем первый поток при загрузке страницы
     </script>
-  </body>
+</body>
 </html>
